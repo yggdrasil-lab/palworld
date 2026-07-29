@@ -1,0 +1,24 @@
+name: Deploy to Gaia
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, gaia]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Deploy Stack
+        env:
+          DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
+          REGISTRY_PREFIX: ${{ vars.REGISTRY_PREFIX }}
+          SERVER_PASSWORD: ${{ secrets.PALWORLD_SERVER_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.PALWORLD_ADMIN_PASSWORD }}
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh "palworld" docker-compose.yml
