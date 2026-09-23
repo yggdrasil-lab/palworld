@@ -7,7 +7,12 @@ services:
       - TZ=Pacific/Auckland
       - PORT=8211
       - PLAYERS=32
-      - MULTITHREADING=true
+      # MULTITHREADING is deprecated as of image 2.6.0; this is its documented replacement
+      # and passes the same -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS args.
+      - ENABLE_PERF_THREADING_ARGS=true
+      # Opt-in recovery for negative DeltaTime (image 2.7.0+). Mitigates the frozen-sim /
+      # crash class seen on long-uptime hosts. Does not correct a drifting host clock.
+      - PALWORLD_ALLOW_NEGATIVE_DELTA_TIME=true
       - RCON_ENABLED=true
       - RCON_PORT=25575
       - SERVER_NAME=${SERVER_NAME:-Palworld Server}
@@ -36,6 +41,11 @@ services:
       replicas: 1
       placement:
         constraints: [ "node.hostname == gaia" ]
+      # Must stay 'any', NOT 'on-failure': PalServer exits 0 on a clean shutdown
+      # (scripts/start.sh ends with `exit 0` after the server stops), so 'on-failure'
+      # would leave the server down after any graceful stop or RCON-initiated restart.
+      restart_policy:
+        condition: any
     networks:
       - aether-net
 
