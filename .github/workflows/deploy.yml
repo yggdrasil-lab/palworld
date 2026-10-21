@@ -9,9 +9,8 @@ jobs:
   deploy:
     runs-on: [self-hosted, gaia]
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Deploy Stack
         env:
@@ -20,5 +19,6 @@ jobs:
           SERVER_PASSWORD: ${{ secrets.PALWORLD_SERVER_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.PALWORLD_ADMIN_PASSWORD }}
         run: |
-          chmod +x scripts/deploy.sh
-          ./scripts/deploy.sh "palworld" docker-compose.yml
+          curl -fsSL https://raw.githubusercontent.com/yggdrasil-lab/yggdrasil-os/main/deploy/deploy.sh -o /tmp/deploy.sh
+          chmod +x /tmp/deploy.sh
+          /tmp/deploy.sh "palworld" docker-compose.yml
