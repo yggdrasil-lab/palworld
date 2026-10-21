@@ -35,7 +35,7 @@ services:
         protocol: tcp
         mode: host
     labels:
-      - "com.docker.compose.project=${STACK_NAME:-palworld}"
+      - "com.docker.compose.project=${STACK_NAME}"
     deploy:
       mode: replicated
       replicas: 1

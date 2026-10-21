@@ -10,23 +10,25 @@ Palworld multiplayer server for Yggdrasil, running on the Gaia manager node via 
 
 ## Deploy
 
-CI/CD runs via GitHub Actions on the gaia self-hosted runner. Push to main triggers deploy automatically.
+Stack deployment is managed automatically via GitHub Actions CI/CD on pushes to `main`.
 
-Manual deploy:
+To deploy manually using centralized `yggdrasil-os` tooling:
 
-```
-DOCKER_HOST=ssh://gaia docker stack deploy -c docker-compose.yml palworld
+```bash
+curl -fsSL https://raw.githubusercontent.com/yggdrasil-lab/yggdrasil-os/main/deploy/deploy.sh -o /tmp/deploy.sh
+chmod +x /tmp/deploy.sh
+/tmp/deploy.sh "palworld" docker-compose.yml
 ```
 
 ## Setup
 
-First-time host setup:
+First-time host setup is provisioned on the Manager Node (Gaia) via `yggdrasil-os`:
 
-```
-./setup_host_gaia.sh
+```bash
+curl -fsSL https://raw.githubusercontent.com/yggdrasil-lab/yggdrasil-os/main/hosts/setup_gaia.sh | sudo bash
 ```
 
-This creates `/opt/palworld/data` on gaia with correct ownership for the container's 1000:1000 user.
+This creates `/opt/palworld/data` and `/opt/palworld/backups` on Gaia with correct ownership (1000:1000).
 
 ## Configuration
 
