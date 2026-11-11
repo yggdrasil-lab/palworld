@@ -15,12 +15,13 @@ services:
       - PALWORLD_ALLOW_NEGATIVE_DELTA_TIME=true
       - RCON_ENABLED=true
       - RCON_PORT=25575
-      - SERVER_NAME=${SERVER_NAME:-Palworld Server}
-      - SERVER_PASSWORD=${SERVER_PASSWORD:-}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+      - SERVER_NAME=${SERVER_NAME}
+      - SERVER_PASSWORD=${SERVER_PASSWORD}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - UPDATE_ON_BOOT=true
     volumes:
       - /opt/palworld/data:/palworld/
+      - /opt/palworld/backups:/palworld/backups
     ports:
       - target: 8211
         published: 8211
@@ -41,11 +42,22 @@ services:
       replicas: 1
       placement:
         constraints: [ "node.hostname == gaia" ]
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 4G
       # Must stay 'any', NOT 'on-failure': PalServer exits 0 on a clean shutdown
       # (scripts/start.sh ends with `exit 0` after the server stops), so 'on-failure'
       # would leave the server down after any graceful stop or RCON-initiated restart.
       restart_policy:
         condition: any
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '. ./helper_functions.sh && PalworldServerPid > /dev/null || exit 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5m
     networks:
       - aether-net
 

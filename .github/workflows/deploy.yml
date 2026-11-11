@@ -12,10 +12,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Validate Required Configuration
+        env:
+          SERVER_PASSWORD: ${{ secrets.PALWORLD_SERVER_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.PALWORLD_ADMIN_PASSWORD }}
+        run: |
+          MISSING=""
+          [ -z "$SERVER_PASSWORD" ] && MISSING="$MISSING SERVER_PASSWORD"
+          [ -z "$ADMIN_PASSWORD" ] && MISSING="$MISSING ADMIN_PASSWORD"
+          if [ -n "$MISSING" ]; then
+            echo "::error::Deployment halted: missing required configuration:$MISSING" >&2
+            exit 1
+          fi
+
+      - name: Prepare host data directories
+        run: |
+          docker run --rm -v /opt/palworld/data:/data -v /opt/palworld/backups:/backups alpine mkdir -p /data /backups
+
       - name: Deploy Stack
         env:
           DOMAIN_NAME: ${{ vars.DOMAIN_NAME }}
           REGISTRY_PREFIX: ${{ vars.REGISTRY_PREFIX }}
+          SERVER_NAME: ${{ vars.SERVER_NAME || 'Palworld Server' }}
           SERVER_PASSWORD: ${{ secrets.PALWORLD_SERVER_PASSWORD }}
           ADMIN_PASSWORD: ${{ secrets.PALWORLD_ADMIN_PASSWORD }}
         run: |
