@@ -58,9 +58,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5m
-    networks:
-      - aether-net
-
-networks:
-  aether-net:
-    external: true
